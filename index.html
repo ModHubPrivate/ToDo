@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>My Apps — Direct Download</title>
+<style>
+  :root{
+    --bg:#0f1115;
+    --bg2:#171b22;
+    --card:#1c212b;
+    --card-border:#2a3140;
+    --text:#f2f4f8;
+    --muted:#9aa4b5;
+    --accent:#4f8cff;
+    --accent2:#36d399;
+    --radius:16px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1200px 600px at 50% -10%, #1e2a44 0%, var(--bg) 55%) fixed, var(--bg);
+    color:var(--text);
+    min-height:100vh;
+  }
+  header{
+    position:sticky;top:0;z-index:10;
+    backdrop-filter:blur(14px);
+    background:rgba(15,17,21,.82);
+    border-bottom:1px solid #242b38;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+  .topbar{
+    display:flex;align-items:center;gap:12px;
+    padding:16px 0 12px;
+  }
+  .logo{
+    width:42px;height:42px;border-radius:12px;flex:0 0 42px;
+    background:linear-gradient(135deg,var(--accent),#7c5cff);
+    display:grid;place-items:center;font-weight:800;font-size:20px;
+  }
+  h1{font-size:18px;margin:0;line-height:1.2}
+  h1 small{display:block;font-weight:400;color:var(--muted);font-size:13px;margin-top:2px}
+  .count{
+    margin-left:auto;
+    background:#222a38;border:1px solid #2e3748;
+    color:#cbd5e1;font-size:13px;font-weight:600;
+    padding:6px 12px;border-radius:999px;white-space:nowrap;
+  }
+  .searchrow{padding:0 0 14px}
+  .search{
+    display:flex;align-items:center;gap:10px;
+    background:var(--bg2);border:1px solid #2a3344;border-radius:12px;
+    padding:12px 14px;
+  }
+  .search svg{flex:0 0 18px;opacity:.6}
+  .search input{
+    flex:1;background:transparent;border:0;outline:0;color:var(--text);
+    font-size:16px;
+  }
+  .search input::placeholder{color:#6b768a}
+  main{padding:20px 0 40px}
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(165px,1fr));
+    gap:14px;
+  }
+  @media(min-width:700px){
+    h1{font-size:20px}
+    .grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+  }
+  .card{
+    background:linear-gradient(180deg,#212837,#1a1f29);
+    border:1px solid var(--card-border);
+    border-radius:var(--radius);
+    overflow:hidden;
+    display:flex;flex-direction:column;
+    transition:transform .15s ease, border-color .15s ease;
+  }
+  .card:active{transform:scale(.98)}
+  @media(hover:hover){.card:hover{border-color:#3b4a68;transform:translateY(-2px)}}
+  .thumb{
+    background:#fff;
+    aspect-ratio:1/1;
+    display:grid;place-items:center;
+    padding:28px;
+  }
+  .thumb img{
+    width:100%;height:100%;object-fit:contain;
+    image-rendering:auto;
+  }
+  .info{padding:12px 12px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
+  .name{font-weight:700;font-size:15px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .meta{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .btnrow{display:flex;gap:8px;margin-top:8px}
+  a.dl{
+    flex:1;text-align:center;text-decoration:none;
+    background:var(--accent);color:#fff;font-weight:700;font-size:14px;
+    padding:11px 10px;border-radius:10px;
+    min-height:44px;display:flex;align-items:center;justify-content:center;gap:6px;
+  }
+  a.dl:active{background:#3d78e6}
+  button.copy{
+    flex:0 0 44px;
+    background:#262e3f;border:1px solid #333e55;color:#dbe4f0;
+    border-radius:10px;min-height:44px;cursor:pointer;font-size:18px;
+  }
+  .empty{display:none;text-align:center;color:var(--muted);padding:40px 0}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="logo">◈</div>
+      <h1>My Apps <small>Tap download for direct file • <span id="total">16</span> items</small></h1>
+      <div class="count" id="count">16 apps</div>
+    </div>
+    <div class="searchrow">
+      <label class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="q" type="search" placeholder="Search apps…" autocomplete="off" enterkeyhint="search">
+      </label>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="grid" id="grid"></div>
+    <p class="empty" id="empty">No apps match your search.</p>
+  </div>
+</main>
+
+<script>
+// ─────────────────────────────────────────────
+// EDIT YOUR APPS HERE — easy to modify
+//   name : display name on the card
+//   img  : icon shown on the card
+//   url  : direct download link (tapping Download opens/saves this)
+//   size : text shown under the name (e.g. "24.5 MB")
+// To add a new app, copy one { ... } block and change the values.
+// To remove one, delete its { ... } block.
+// ─────────────────────────────────────────────
+const APPS = [
+  { name: "ChatGPT",            img: "./chatgpt.webp",          url: "./chatgpt.webp",          size: "7.4 KB"  },
+  { name: "Chrome",             img: "./chrome.webp",           url: "./chrome.webp",           size: "6.2 KB"  },
+  { name: "Facebook",           img: "./facebook.webp",         url: "./facebook.webp",         size: "2.8 KB"  },
+  { name: "Facebook Lite",      img: "./facebookLite.webp",     url: "./facebookLite.webp",     size: "2.8 KB"  },
+  { name: "Gemini",             img: "./gemini.webp",           url: "./gemini.webp",           size: "4.1 KB"  },
+  { name: "inDrive",            img: "./inDrive.webp",          url: "./inDrive.webp",          size: "3.8 KB"  },
+  { name: "Instagram",          img: "./instagram.webp",        url: "./instagram.webp",        size: "8.6 KB"  },
+  { name: "Messenger",          img: "./messenger.webp",        url: "./messenger.webp",        size: "6.0 KB"  },
+  { name: "SHAREit",            img: "./shareit.webp",          url: "./shareit.webp",          size: "6.3 KB"  },
+  { name: "Signal",             img: "./signal.webp",           url: "./signal.webp",           size: "15.2 KB" },
+  { name: "Telegram",           img: "./telegram.webp",         url: "./telegram.webp",         size: "5.9 KB"  },
+  { name: "TikTok",             img: "./tiktok.webp",           url: "./tiktok.webp",           size: "6.4 KB"  },
+  { name: "Truecaller",         img: "./truecaller.webp",       url: "./truecaller.webp",       size: "8.9 KB"  },
+  { name: "WhatsApp",           img: "./whatsapp.webp",         url: "./whatsapp.webp",         size: "6.3 KB"  },
+  { name: "WhatsApp Business",  img: "./whatsappBusiness.webp", url: "./whatsappBusiness.webp", size: "13.5 KB" },
+  { name: "X",                  img: "./X.webp",                url: "./X.webp",                size: "5.7 KB"  },
+];
+
+(function(){
+  const grid  = document.getElementById('grid');
+  const q     = document.getElementById('q');
+  const count = document.getElementById('count');
+  const total = document.getElementById('total');
+  const empty = document.getElementById('empty');
+
+  // Build cards from the APPS array above — no need to touch code below
+  function fileOf(url){ return url.split('/').pop().split('?')[0]; }
+
+  grid.innerHTML = APPS.map((a, i) => `
+    <div class="card" data-name="${a.name.toLowerCase()}" data-i="${i}">
+      <div class="thumb"><img src="${a.img}" alt="${a.name}" loading="lazy"></div>
+      <div class="info">
+        <p class="name">${a.name}</p>
+        <div class="meta">${fileOf(a.url)} • ${a.size}</div>
+        <div class="btnrow">
+          <a class="dl" href="${a.url}" download="${fileOf(a.url)}">⭳ Download</a>
+          <button class="copy" data-href="${a.url}" title="Copy link">⧉</button>
+        </div>
+      </div>
+    </div>`).join('');
+
+  const cards = Array.prototype.slice.call(grid.querySelectorAll('.card'));
+  total.textContent = APPS.length;
+  count.textContent = APPS.length + ' app' + (APPS.length === 1 ? '' : 's');
+
+  q.addEventListener('input', function(){
+    const v = q.value.trim().toLowerCase();
+    let shown = 0;
+    cards.forEach(function(c){
+      const hit = !v || c.getAttribute('data-name').indexOf(v) !== -1;
+      c.style.display = hit ? '' : 'none';
+      if(hit) shown++;
+    });
+    count.textContent = shown + ' app' + (shown === 1 ? '' : 's');
+    empty.style.display = shown ? 'none' : 'block';
+  });
+
+  grid.querySelectorAll('button.copy').forEach(function(b){
+    b.addEventListener('click', function(){
+      const url = new URL(b.getAttribute('data-href'), location.href).href;
+      const done = function(){ b.textContent='✓'; setTimeout(function(){b.textContent='⧉'},1200); };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(url).then(done, done);
+      } else {
+        const t=document.createElement('textarea');t.value=url;document.body.appendChild(t);t.select();
+        try{document.execCommand('copy')}catch(e){}document.body.removeChild(t);done();
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
